@@ -1,4 +1,4 @@
-# 🥚 Egg Catcher Game (OpenGL + C++)
+<p align="center"># 🥚 Egg Catcher Game (OpenGL + C++)</p>
 
 ![Build](https://img.shields.io/badge/Build-Passing-success?style=for-the-badge)
 ![Stars](https://img.shields.io/github/stars/bokhtearmdabid/Catch-The-Eggs-LT-1.0.0?style=for-the-badge)
@@ -132,7 +132,7 @@ Soon...
 
 ## 📄 License
 
-This project is licensed under the **MIT License**.  
+This project is licensed under the **Apache License**.  
 See the `LICENSE` file for details.
 
 ---
