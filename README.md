@@ -1,8 +1,9 @@
 <h1 align="center">🥚 Egg Catcher Game (OpenGL + C++)</h1>
-
+<h3 align="center"> Catch The Eggs LT V1.0.0 </h3>
+<p align="center"> 
 ![Build](https://img.shields.io/badge/Build-Passing-success?style=for-the-badge)
 ![Stars](https://img.shields.io/github/stars/bokhtearmdabid/Catch-The-Eggs-LT-1.0.0?style=for-the-badge)
-![License](https://img.shields.io/github/license/bokhtearmdabid/Catch-The-Eggs-LT-1.0.0?style=for-the-badge)
+![License](https://img.shields.io/github/license/bokhtearmdabid/Catch-The-Eggs-LT-1.0.0?style=for-the-badge) </p>
 
 A visually engaging and feature-rich arcade-style egg catching game built using **C++** and the **OpenGL** graphics library.  
 Catch eggs, avoid hazards, trigger power-ups, and chase high scores in a dynamic animated environment.
