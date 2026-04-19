@@ -1,4 +1,4 @@
-<p align="center"><h3 align="center">🥚 Egg Catcher Game (OpenGL + C++)</h3></p>
+<h1 align="center">🥚 Egg Catcher Game (OpenGL + C++)</h1>
 
 ![Build](https://img.shields.io/badge/Build-Passing-success?style=for-the-badge)
 ![Stars](https://img.shields.io/github/stars/bokhtearmdabid/Catch-The-Eggs-LT-1.0.0?style=for-the-badge)
