@@ -100,7 +100,8 @@ The game runs on a **60-second timer** with increasing difficulty and combo-base
 ## 🛠️ Tech Stack
 
 - **Language:** C++  
-- **Graphics Library:** OpenGL  
+- **Graphics Library (API):** OpenGL
+- **Windowing/Utility Library:** freeGLUT
 
 ### Concepts Used
 - Real-time rendering  
