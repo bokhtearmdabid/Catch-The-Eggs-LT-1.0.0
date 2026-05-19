@@ -282,6 +282,133 @@ void drawPerk(const Perk& p){
 }
 
 
+// ─── Chicken drawing ─────────────────────────────────────────────────────────
+void drawChicken(const Chicken& c){
+    float x=c.x, y=STICK_Y+14.f;
+    float bob=sinf(c.animPhase)*3.f;
+    y+=bob;
+
+    // Body
+    setColor(1.f,0.95f,0.85f);
+    drawEllipse(x,y,18,14);
+    // Head
+    setColor(1.f,0.95f,0.85f);
+    drawCircle(x+(c.dir>0?14.f:-14.f),y+8,10);
+    // Comb
+    setColor(1.f,0.2f,0.2f);
+    float hx=x+(c.dir>0?14.f:-14.f);
+    drawEllipse(hx,y+18,5,6);
+    drawEllipse(hx+c.dir*4.f,y+20,4,5);
+    // Beak
+    setColor(1.f,0.7f,0.f);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(hx+c.dir*9.f,y+8);
+    glVertex2f(hx+c.dir*14.f,y+10);
+    glVertex2f(hx+c.dir*9.f,y+5);
+    glEnd();
+    // Eye
+    setColor(0.05f,0.05f,0.05f);
+    drawCircle(hx+c.dir*5.f,y+11,2,8);
+    // Wing flap
+    float wingY=sinf(c.animPhase*2.f)*6.f;
+    setColor(0.95f,0.88f,0.75f);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(x-c.dir*2.f,y+4);
+    glVertex2f(x-c.dir*18.f,y-8+wingY);
+    glVertex2f(x-c.dir*8.f,y-8+wingY);
+    glEnd();
+    // Feet
+    setColor(1.f,0.7f,0.f);
+    glLineWidth(2);
+    glBegin(GL_LINES);
+    glVertex2f(x-6,y-14); glVertex2f(x-6,y-20);
+    glVertex2f(x+6,y-14); glVertex2f(x+6,y-20);
+    glVertex2f(x-6,y-20); glVertex2f(x-12,y-20);
+    glVertex2f(x+6,y-20); glVertex2f(x+12,y-20);
+    glEnd();
+}
+
+// ─── Basket drawing ──────────────────────────────────────────────────────────
+void drawBasket(){
+    float bx=gBasketX-gBasketW/2.f;
+    float by=GROUND_Y;
+    float bw=gBasketW, bh=BASKET_H;
+
+    // Shadow
+    setColor(0,0,0,0.18f);
+    drawEllipse(gBasketX,by-2,bw*0.55f,6);
+
+    // Weave pattern (brown basket)
+    setColor(0.55f,0.27f,0.07f);
+    drawRect(bx,by,bw,bh);
+
+    // Weave lines horizontal
+    setColor(0.45f,0.20f,0.05f);
+    glLineWidth(1.5f);
+    for(int i=1;i<5;i++){
+        float ly=by+bh*i/5.f;
+        glBegin(GL_LINES); glVertex2f(bx,ly); glVertex2f(bx+bw,ly); glEnd();
+    }
+    // Weave lines vertical
+    for(int i=1;i<8;i++){
+        float lx=bx+bw*i/8.f;
+        glBegin(GL_LINES); glVertex2f(lx,by); glVertex2f(lx,by+bh); glEnd();
+    }
+
+    // Rim
+    setColor(0.7f,0.4f,0.1f);
+    drawRect(bx-4,by+bh-6,bw+8,10);
+    // Handle arc
+    glLineWidth(3);
+    setColor(0.6f,0.3f,0.07f);
+    glBegin(GL_LINE_STRIP);
+    for(int i=0;i<=20;i++){
+        float t=(float)i/20.f;
+        float hx2=bx+bw*t;
+        float hy=by+bh+20.f*sinf(M_PI*t);
+        glVertex2f(hx2,hy);
+    }
+    glEnd();
+
+    // Wide perk glow
+    if(gWideTimer>0){
+        setColor(0.2f,1.f,0.3f,0.3f);
+        drawRect(bx-4,by,bw+8,bh+10);
+    }
+    // Slow perk glow
+    if(gSlowTimer>0){
+        setColor(0.3f,0.5f,1.f,0.25f);
+        drawRect(bx-4,by,bw+8,bh+10);
+    }
+}
+
+// ─── Background ──────────────────────────────────────────────────────────────
+void drawBackground(){
+    // Sky gradient (drawn as quads)
+    glBegin(GL_QUADS);
+    setColor(0.4f,0.75f,1.f);   glVertex2f(0,WORLD_H); glVertex2f(WORLD_W,WORLD_H);
+    setColor(0.7f,0.9f,1.f);    glVertex2f(WORLD_W,GROUND_Y+60); glVertex2f(0,GROUND_Y+60);
+    glEnd();
+
+    // Ground
+    setColor(0.35f,0.65f,0.25f);
+    drawRect(0,0,WORLD_W,GROUND_Y+60);
+    setColor(0.45f,0.75f,0.3f);
+    drawRect(0,GROUND_Y+40,WORLD_W,20);
+
+    // Clouds
+    auto cloud=[](float cx,float cy,float s){
+        setColor(1,1,1,0.85f);
+        drawCircle(cx,cy,s*0.8f);
+        drawCircle(cx+s,cy,s*0.6f);
+        drawCircle(cx-s,cy,s*0.55f);
+        drawCircle(cx+s*0.4f,cy+s*0.4f,s*0.55f);
+    };
+    float cf=gFrame*0.15f;
+    cloud(fmodf(120+cf,WORLD_W+100)-50, 540,28);
+    cloud(fmodf(380+cf*0.7f,WORLD_W+100)-50, 520,22);
+    cloud(fmodf(620+cf*1.2f,WORLD_W+100)-50, 550,30);
+
 
     // Sticks (bamboo)
     for(int s=0;s<2;s++){
