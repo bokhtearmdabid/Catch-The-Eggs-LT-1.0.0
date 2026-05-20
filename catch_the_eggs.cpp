@@ -533,7 +533,87 @@ void drawParticles(){
     }
 }
 
+// ─── Spawn helpers ────────────────────────────────────────────────────────────
+void spawnEgg(){
+    // pick which stick to spawn from
+    int si=rand()%2;
+    Chicken& c=gChicken[si];
+    for(int i=0;i<MAX_EGGS;i++){
+        if(!gEggs[i].active){
+            gEggs[i].active=true;
+            gEggs[i].x=c.x;
+            gEggs[i].y=STICK_Y-12.f;
+            float r=randf(0,1);
+            if(r<0.08f) gEggs[i].type=EGG_GOLDEN;
+            else if(r<0.25f) gEggs[i].type=EGG_BLUE;
+            else if(r<0.35f) gEggs[i].type=EGG_POOP;
+            else gEggs[i].type=EGG_NORMAL;
+            gEggs[i].vy=BASE_EGG_SPEED+randf(0,2.f);
+            gEggs[i].wobble=randf(0,2*M_PI);
+            break;
+        }
+    }
+}
 
+void spawnPerk(){
+    for(int i=0;i<MAX_PERKS;i++){
+        if(!gPerks[i].active){
+            gPerks[i].active=true;
+            gPerks[i].x=randf(40,WORLD_W-40);
+            gPerks[i].y=WORLD_H+10;
+            gPerks[i].vy=BASE_PERK_SPEED+randf(0,1.f);
+            gPerks[i].type=(PerkType)(rand()%4);
+            gPerks[i].rot=randf(0,360);
+            break;
+        }
+    }
+}
+
+// ─── Collision helpers ────────────────────────────────────────────────────────
+bool inBasket(float ex,float ey){
+    float bx=gBasketX-gBasketW/2.f;
+    return ex>=bx-EGG_R && ex<=bx+gBasketW+EGG_R &&
+           ey<=GROUND_Y+BASKET_H && ey>=GROUND_Y-EGG_R;
+}
+
+bool inBasketPerk(float px2,float py){
+    float bx=gBasketX-gBasketW/2.f;
+    return px2>=bx && px2<=bx+gBasketW &&
+           py<=GROUND_Y+BASKET_H && py>=GROUND_Y-PERK_SIZE;
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+void initGame(){
+    gScore=0; gTimeLeft=GAME_DURATION;
+    gBasketX=WORLD_W/2.f; gBasketW=BASKET_W;
+    gSpeedMul=1.f; gSlowTimer=0; gWideTimer=0; gWindX=0; gWindTimer=0;
+    gEggSpawnTimer=0; gPerkSpawnTimer=0; gFrame=0;
+    gCombo=0; gComboTimer=0; gMsgTimer=0;
+
+    for(int i=0;i<MAX_EGGS;i++) gEggs[i].active=false;
+    for(int i=0;i<MAX_PERKS;i++) gPerks[i].active=false;
+    gParticles.clear();
+
+    // Chicken 0: left stick
+    gChicken[0]={200,2,1, 80,380, 0};
+    // Chicken 1: right stick
+    gChicken[1]={550,1.5f,1, 420,720, 0};
+}
+
+// ─── Update ───────────────────────────────────────────────────────────────────
+void update(float dt){
+    gFrame+=1;
+
+    // Timers
+    if(gTimeLeft<=0){ gTimeLeft=0; gHighScore=std::max(gHighScore,gScore); gState=STATE_GAMEOVER; return; }
+    gTimeLeft-=dt;
+
+    // Perks timer
+    if(gSlowTimer>0){ gSlowTimer-=dt; if(gSlowTimer<=0){gSpeedMul=1.f; showMessage("Speed restored!");} }
+    if(gWideTimer>0){ gWideTimer-=dt; if(gWideTimer<=0){gBasketW=BASKET_W; showMessage("Basket normal.");} }
+    if(gWindTimer>0){ gWindTimer-=dt; if(gWindTimer<=0){gWindX=0;} }
+    if(gComboTimer>0) gComboTimer-=dt;
+    if(gMsgTimer>0) gMsgTimer-=dt;
 
     // Basket movement
     float bspd = BASKET_SPEED + gBasketW*0.05f;
