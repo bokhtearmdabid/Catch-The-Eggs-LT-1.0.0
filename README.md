@@ -167,7 +167,7 @@ If you want to take this project further:
 
 <div align="center">
   
-  ⭐️ From [Bokhtear Md Abid & Md Mukit Hasan] | Made with 💙 and ☕
+  ⭐️ From [Bokhtear Md Abid - Md Mukit Hasan - Sojib Ahmed] | Made with 💙 and ☕
   
 </div>
 
