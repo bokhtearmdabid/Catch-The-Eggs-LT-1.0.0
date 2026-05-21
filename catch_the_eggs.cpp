@@ -23,6 +23,10 @@
 const int WIN_W = 800, WIN_H = 600;
 const float WORLD_W = 800.f, WORLD_H = 600.f;
 
+// ─── EASY CONFIGURATION ───────────────────────────────────────────────────────
+const int   NUM_CHICKENS      = 2;
+const float CHICKEN_SCALE     = 1.0f;
+
 // ─── Game constants ───────────────────────────────────────────────────────────
 const int   GAME_DURATION     = 60;      // seconds
 const float BASKET_SPEED      = 12.f;
@@ -36,7 +40,7 @@ const float EGG_R             = 14.f;
 const float PERK_SIZE         = 22.f;
 const int   MAX_EGGS          = 12;
 const int   MAX_PERKS         = 3;
-const float EGG_SPAWN_RATE    = 80.f;   // frames between spawns (base)
+const float EGG_SPAWN_RATE    = 80.f;    // frames between spawns (base)
 const float PERK_SPAWN_RATE   = 300.f;
 
 // ─── Egg types ────────────────────────────────────────────────────────────────
@@ -99,8 +103,8 @@ float       gComboTimer     = 0.f;
 char        gMessage[64]    = "";
 float       gMsgTimer       = 0.f;
 
-// Two sticks / two chickens
-Chicken     gChicken[2];
+// Entities
+std::vector<Chicken> gChicken; // Dynamically sizing array of chickens
 Egg         gEggs[MAX_EGGS];
 Perk        gPerks[MAX_PERKS];
 std::vector<Particle> gParticles;
@@ -281,12 +285,19 @@ void drawPerk(const Perk& p){
     glPopMatrix();
 }
 
-
 // ─── Chicken drawing ─────────────────────────────────────────────────────────
 void drawChicken(const Chicken& c){
-    float x=c.x, y=STICK_Y+14.f;
     float bob=sinf(c.animPhase)*3.f;
-    y+=bob;
+
+    glPushMatrix();
+    // Translate to where the chicken stands on the stick
+    glTranslatef(c.x, STICK_Y, 0.0f);
+    // Scale size by the CHICKEN_SCALE multiplier
+    glScalef(CHICKEN_SCALE, CHICKEN_SCALE, 1.0f);
+
+    // Draw using local coordinates (0 is center of chicken, 14+bob is the baseline y-height relative to stick)
+    float x = 0.f;
+    float y = 14.f + bob;
 
     // Body
     setColor(1.f,0.95f,0.85f);
@@ -326,6 +337,8 @@ void drawChicken(const Chicken& c){
     glVertex2f(x-6,y-20); glVertex2f(x-12,y-20);
     glVertex2f(x+6,y-20); glVertex2f(x+12,y-20);
     glEnd();
+
+    glPopMatrix();
 }
 
 // ─── Basket drawing ──────────────────────────────────────────────────────────
@@ -409,9 +422,8 @@ void drawBackground(){
     cloud(fmodf(380+cf*0.7f,WORLD_W+100)-50, 520,22);
     cloud(fmodf(620+cf*1.2f,WORLD_W+100)-50, 550,30);
 
-
     // Sticks (bamboo)
-    for(int s=0;s<2;s++){
+    for(size_t s=0;s<gChicken.size();s++){
         float sx1=gChicken[s].stickX1-20.f;
         float sx2=gChicken[s].stickX2+20.f;
         // Pole
@@ -535,9 +547,12 @@ void drawParticles(){
 
 // ─── Spawn helpers ────────────────────────────────────────────────────────────
 void spawnEgg(){
-    // pick which stick to spawn from
-    int si=rand()%2;
+    if (gChicken.empty()) return;
+
+    // pick which stick to spawn from based on total number of chickens
+    int si=rand() % gChicken.size();
     Chicken& c=gChicken[si];
+
     for(int i=0;i<MAX_EGGS;i++){
         if(!gEggs[i].active){
             gEggs[i].active=true;
@@ -594,10 +609,21 @@ void initGame(){
     for(int i=0;i<MAX_PERKS;i++) gPerks[i].active=false;
     gParticles.clear();
 
-    // Chicken 0: left stick
-    gChicken[0]={200,2,1, 80,380, 0};
-    // Chicken 1: right stick
-    gChicken[1]={550,1.5f,1, 420,720, 0};
+    // Dynamically generate chickens/sticks based on NUM_CHICKENS variable
+    gChicken.clear();
+    if (NUM_CHICKENS > 0) {
+        float sectionW = WORLD_W / NUM_CHICKENS;
+        for (int i = 0; i < NUM_CHICKENS; i++) {
+            Chicken c;
+            c.stickX1 = i * sectionW + 40.f;              // Pad the left edge of section
+            c.stickX2 = (i + 1) * sectionW - 40.f;        // Pad the right edge of section
+            c.x = (c.stickX1 + c.stickX2) / 2.f;          // Start in middle
+            c.vx = randf(1.0f, 2.5f);                     // Random walking speed
+            c.dir = (rand() % 2 == 0) ? 1.f : -1.f;       // Random start direction
+            c.animPhase = randf(0, 3.14f);
+            gChicken.push_back(c);
+        }
+    }
 }
 
 // ─── Update ───────────────────────────────────────────────────────────────────
@@ -622,7 +648,7 @@ void update(float dt){
     gBasketX=std::max(gBasketW/2.f+4, std::min(WORLD_W-gBasketW/2.f-4, gBasketX));
 
     // Chickens
-    for(int s=0;s<2;s++){
+    for(size_t s=0;s<gChicken.size();s++){
         Chicken& c=gChicken[s];
         c.x+=c.vx*c.dir;
         if(c.x>c.stickX2){c.dir=-1;}
@@ -858,7 +884,7 @@ void display(){
     // ─── Gameplay scene ──────────────────────────
     drawBackground();
 
-    for(int i=0;i<2;i++) drawChicken(gChicken[i]);
+    for(size_t i=0;i<gChicken.size();i++) drawChicken(gChicken[i]);
     for(int i=0;i<MAX_PERKS;i++) drawPerk(gPerks[i]);
     for(int i=0;i<MAX_EGGS;i++) drawEgg(gEggs[i]);
     drawParticles();
