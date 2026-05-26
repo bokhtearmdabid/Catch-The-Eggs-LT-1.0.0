@@ -23,7 +23,7 @@
 const int WIN_W = 800, WIN_H = 600;
 const float WORLD_W = 800.f, WORLD_H = 600.f;
 
-// ─── EASY CONFIGURATION ───────────────────────────────────────────────────────
+// ─── Chicken Basic ───────────────────────────────────────────────────────
 const int   NUM_CHICKENS      = 2;
 const float CHICKEN_SCALE     = 1.0f;
 
