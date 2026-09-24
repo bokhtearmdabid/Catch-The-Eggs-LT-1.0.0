@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://github.com/bokhtearmdabid/Catch-The-Eggs-LT-1.0.0/blob/main/catch_the_egg_LT.png" alt="Egg Catcher Gameplay" width=100%>
+</p>
+
 <h1 align="center">🥚 Egg Catcher Game (OpenGL + C++)</h1>
 <h3 align="center"> Catch The Eggs LT V1.0.0 </h3>
 
